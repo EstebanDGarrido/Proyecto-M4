@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { User } from './users.repository';
 
 @Controller('users')
 export class UsersController {
@@ -7,7 +8,7 @@ export class UsersController {
 
   //* http://localhost:3000/users => PATH "/users"
   @Get()
-  getAllUsers() {
+  getAllUsers(): Promise<User[]> {
     return this.userService.getAllUsers();
   }
 }
