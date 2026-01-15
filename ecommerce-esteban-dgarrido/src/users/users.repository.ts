@@ -218,7 +218,50 @@ const users: User[] = [
 @Injectable()
 export class UsersRepository {
   //* Métodos:
-  async getAllUsers(): Promise<User[]> {
-    return await users;
+  async getAllUsers(
+    page: number,
+    limit: number,
+  ): Promise<Omit<User, 'password'>[]> {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+
+    const userList = users.slice(start, end);
+
+    return await userList.map(
+      ({ password, ...userNoPassword }) => userNoPassword,
+    );
+  }
+
+  getUserById(id: string) {
+    const foundUser = users.find((user) => user.id === id);
+    // foundUser: {...} || undefined(falsy)
+    if (!foundUser) return `No se encontró usuario con id: ${id}`;
+    const { password, ...userNoPassword } = foundUser;
+    return userNoPassword;
+  }
+
+  getUserByEmail(email: string) {
+    const foundUser = users.find((user) => user.email === email);
+    return foundUser;
+  }
+
+  addUser(userNewData: any) {
+    users.push({ ...userNewData, id: userNewData.email });
+    return userNewData.email;
+  }
+
+  updateUser(id: string, userNewData: any) {
+    const foundUser = users.find((user) => user.id === id);
+    if (!foundUser) return `No se encontró usuario con id: ${id}`;
+    Object.assign(foundUser, userNewData);
+    return id;
+  }
+
+  deleteUser(id: string) {
+    const foundIndex = users.findIndex((user) => user.id === id);
+    // INDEX || -1
+    if (foundIndex === -1) return `No se encontró usuario con id: ${id}`;
+    users.splice(foundIndex, 1);
+    return id;
   }
 }
