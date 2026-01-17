@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -12,7 +13,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { Users } from 'src/entities/users.entity';
+import { Users } from '../users/entities/users.entity';
+import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -38,7 +40,7 @@ export class UsersController {
   // GET /users/:id
   @Get(':id')
   @HttpCode(200)
-  getUserById(@Param('id') id: string) {
+  getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.getUserById(id);
   }
 
@@ -46,7 +48,7 @@ export class UsersController {
   // Body: {name, email, password, ...}
   @Post()
   @HttpCode(201)
-  addUser(@Body() userNewData: any) {
+  addUser(@Body() userNewData: CreateUserDto) {
     //! Validaciones (Se borra más adelante):
     if (!userNewData.email) return 'Email es requerido';
     if (!userNewData.name) return 'Name es requerido';
@@ -61,14 +63,17 @@ export class UsersController {
   // Body: {city, address, ...}
   @Put('id')
   @HttpCode(200)
-  updateUser(@Param('id') id: string, @Body() userNewData: any) {
+  updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() userNewData: UpdateUserDto,
+  ) {
     return this.userService.updateUser(id, userNewData);
   }
 
   // DELETE /users/:id
   @Delete('id')
   @HttpCode(200)
-  deleteUser(@Param('id') id: string) {
+  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.deleteUser(id);
   }
 }

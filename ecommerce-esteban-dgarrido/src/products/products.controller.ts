@@ -4,12 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Products } from 'src/entities/products.entity';
+import { Products } from 'src/products/entities/products.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -31,7 +32,7 @@ export class ProductsController {
 
   // GET /products/:id
   @Get(':id')
-  getProductById(@Param('id') id: string) {
+  getProductById(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.getProductById(id);
   }
 
@@ -43,13 +44,16 @@ export class ProductsController {
   //PUT /products/:id
   //Body: {name, description, price, stock, imgURL}
   @Put(':id')
-  updateProduct(@Param('id') id: string, @Body() newProductData: Products) {
+  updateProduct(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() newProductData: Products,
+  ) {
     return this.productsService.updateProduct(id, newProductData);
   }
 
   //DELETE /products/:id
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
+  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.deleteProduct(id);
   }
 }

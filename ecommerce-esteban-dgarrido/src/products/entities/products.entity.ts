@@ -6,8 +6,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Categories } from './categories.entity';
-import { OrderDetails } from './orderdetails.entity';
+import { Categories } from '../../categories/entities/categories.entity';
+import { OrderDetails } from '../../orders/entities/orderdetails.entity';
 
 @Entity({
   name: 'PRODUCTS',

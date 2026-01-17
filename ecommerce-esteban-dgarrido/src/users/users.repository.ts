@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/users.entity';
+import { Users } from '../users/entities/users.entity';
 import { Repository } from 'typeorm';
+import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -21,7 +22,7 @@ export class UsersRepository {
     return allUsers.map(({ password, ...userNoPassword }) => userNoPassword);
   }
 
-  async getUserById(id: string): Promise<Omit<Users, 'password'> | string> {
+  async getUserById(id: string): Promise<Omit<Users, 'password'>> {
     const foundUser = await this.ormUsersRepository.findOne({
       where: { id },
       relations: {
@@ -32,7 +33,8 @@ export class UsersRepository {
         },
       },
     });
-    if (!foundUser) return `No se encontró el usuario con id ${id}`;
+    if (!foundUser)
+      throw new NotFoundException(`No se encontró el usuario con id ${id}`);
     const { password, ...userNoPassword } = foundUser;
     return userNoPassword;
   }
@@ -42,17 +44,17 @@ export class UsersRepository {
     return await this.ormUsersRepository.findOneBy({ email });
   }
 
-  async addUser(newUserData: Users): Promise<string> {
+  async addUser(newUserData: CreateUserDto): Promise<string> {
     const savedUser = await this.ormUsersRepository.save(newUserData);
     return savedUser.id;
   }
 
   async updateUser(
     id: string,
-    newUserData: Users,
+    newUserData: UpdateUserDto,
   ): Promise<Omit<Users, 'password'> | string> {
     const user = await this.ormUsersRepository.findOneBy({ id });
-    if (!user) return `No existe usuario con id ${id}`;
+    if (!user) throw new NotFoundException(`No existe usuario con id ${id}`);
     const mergedUser = this.ormUsersRepository.merge(user, newUserData);
     const savedUser = await this.ormUsersRepository.save(mergedUser);
     const { password, ...userNoPassword } = savedUser;

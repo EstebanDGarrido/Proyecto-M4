@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OrdersRepository } from './orders.repository';
+import { CreateOrderDto } from './dto/orders.dto';
 
 @Injectable()
 export class OrdersService {
@@ -9,7 +10,7 @@ export class OrdersService {
     return this.ordersRepository.getOrderById(id);
   }
 
-  addOrder(newOrderData: any) {
+  addOrder(newOrderData: CreateOrderDto) {
     return this.ordersRepository.addOrder(newOrderData);
   }
 }
