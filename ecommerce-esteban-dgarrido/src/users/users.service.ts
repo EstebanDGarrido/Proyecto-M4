@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { User, UsersRepository } from './users.repository';
+import { UsersRepository } from './users.repository';
+import { Users } from 'src/entities/users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  getAllUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
+  getAllUsers(page: number, limit: number): Promise<Omit<Users, 'password'>[]> {
     return this.usersRepository.getAllUsers(page, limit);
   }
 
