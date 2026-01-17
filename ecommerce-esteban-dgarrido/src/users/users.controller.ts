@@ -28,7 +28,7 @@ export class UsersController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ): Promise<Omit<Users, 'password'>[]> {
-    const pageNum = Number(page); // Number(undefined); 0  Number("hola"); NaN
+    const pageNum = Number(page);
     const limitNum = Number(limit);
 
     const validPage = pageNum > 0 && !isNaN(pageNum) ? pageNum : 1;
@@ -40,27 +40,20 @@ export class UsersController {
   // GET /users/:id
   @Get(':id')
   @HttpCode(200)
-  getUserById(@Param('id', ParseUUIDPipe) id: string) {
+  async getUserById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Omit<Users, 'password'>> {
     return this.userService.getUserById(id);
   }
 
   // POST /users
-  // Body: {name, email, password, ...}
   @Post()
   @HttpCode(201)
   addUser(@Body() userNewData: CreateUserDto) {
-    //! Validaciones (Se borra más adelante):
-    if (!userNewData.email) return 'Email es requerido';
-    if (!userNewData.name) return 'Name es requerido';
-    if (!userNewData.password) return 'Password es requerido';
-    if (!userNewData.phone) return 'Phone es requerido';
-    if (typeof userNewData.phone !== 'string') 'Phone debe ser un string';
-
     return this.userService.addUser(userNewData);
   }
 
   // PUT /users/:id
-  // Body: {city, address, ...}
   @Put('id')
   @HttpCode(200)
   updateUser(
@@ -77,18 +70,3 @@ export class UsersController {
     return this.userService.deleteUser(id);
   }
 }
-
-/*
-  usuarios: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-                      ^start ^end
-  GET /users?page=2&limit=3
-  GET /users/id/5
-  page: 2      limit: 3
-
-  page 1: [0, 1, 2]
-  page 2: [3, 4, 5] <----
-  ^start = (page -1)*limit = 3
-  page 3: [6, 7, 8]
-  ^end = start + limit
-  page 4: [9]
-*/
