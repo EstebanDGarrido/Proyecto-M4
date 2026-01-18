@@ -7,7 +7,9 @@ import {
   IsStrongPassword,
   MaxLength,
   MinLength,
+  Validate,
 } from 'class-validator';
+import { MatchPassword } from 'src/decorators/matchPassword.decorator';
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'Nombre no puede estar vacío' })
@@ -35,6 +37,10 @@ export class CreateUserDto {
     },
   )
   password: string;
+
+  @IsNotEmpty()
+  @Validate(MatchPassword, ['password'])
+  confirmPassword: string;
 
   @IsNotEmpty({ message: 'Teléfono no puede estar vacío' })
   @IsNumber()

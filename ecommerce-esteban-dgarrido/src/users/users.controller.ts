@@ -6,7 +6,6 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Post,
   Put,
   Query,
   UseGuards,
@@ -14,7 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Users } from '../users/entities/users.entity';
-import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
+import { UpdateUserDto } from './dto/users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -44,13 +43,6 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Omit<Users, 'password'>> {
     return this.userService.getUserById(id);
-  }
-
-  // POST /users
-  @Post()
-  @HttpCode(201)
-  addUser(@Body() userNewData: CreateUserDto) {
-    return this.userService.addUser(userNewData);
   }
 
   // PUT /users/:id

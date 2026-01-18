@@ -18,6 +18,8 @@ import { OrdersModule } from './orders/orders.module';
 import { CategoriesService } from './categories/categories.service';
 import { ProductsService } from './products/products.service';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { JwtModule } from '@nestjs/jwt';
+import { environment } from './config/environment';
 
 //* El @Algo es un decorador que añade funcionalidades a quien está decorando.
 @Module({
@@ -40,6 +42,11 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     CategoriesModule,
     OrdersModule,
     FileUploadModule,
+    JwtModule.register({
+      global: true,
+      secret: environment.JWT_SECRET,
+      signOptions: { expiresIn: '60m' },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
