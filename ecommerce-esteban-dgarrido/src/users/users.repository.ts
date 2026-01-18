@@ -22,7 +22,7 @@ export class UsersRepository {
     return allUsers.map(({ password, ...userNoPassword }) => userNoPassword);
   }
 
-  async getUserById(id: string): Promise<Omit<Users, 'password'>> {
+  async getUserById(id: string): Promise<Omit<Users, 'password' | 'isAdmin'>> {
     const foundUser = await this.ormUsersRepository.findOne({
       where: { id },
       relations: {
@@ -35,8 +35,8 @@ export class UsersRepository {
     });
     if (!foundUser)
       throw new NotFoundException(`No se encontró el usuario con id ${id}`);
-    const { password, ...userNoPassword } = foundUser;
-    return userNoPassword;
+    const { password, isAdmin, ...filteredUser } = foundUser;
+    return filteredUser;
   }
 
   // IMPORTANTE: Retorna un "Usuario" o "null" => Invocado por Auth
@@ -45,7 +45,16 @@ export class UsersRepository {
   }
 
   async addUser(newUserData: CreateUserDto): Promise<string> {
-    const savedUser = await this.ormUsersRepository.save(newUserData);
+    const user = this.ormUsersRepository.create({
+      name: newUserData.name,
+      email: newUserData.email,
+      password: newUserData.password,
+      phone: newUserData.phone,
+      address: newUserData.address,
+      city: newUserData.city,
+      country: newUserData.country,
+    });
+    const savedUser = await this.ormUsersRepository.save(user);
     return savedUser.id;
   }
 

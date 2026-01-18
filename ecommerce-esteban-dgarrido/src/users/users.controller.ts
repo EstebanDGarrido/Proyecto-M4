@@ -14,6 +14,9 @@ import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Users } from '../users/entities/users.entity';
 import { UpdateUserDto } from './dto/users.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from './roles.enum';
 
 @Controller('users')
 export class UsersController {
@@ -21,8 +24,9 @@ export class UsersController {
 
   // GET /users?page=2&limit=3
   @Get()
+  @Roles(Role.Admin) //['admin', 'superAdmin', 'tester']
   @HttpCode(200)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   getAllUsers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -41,7 +45,7 @@ export class UsersController {
   @HttpCode(200)
   async getUserById(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<Omit<Users, 'password'>> {
+  ): Promise<Omit<Users, 'password' | 'isAdmin'>> {
     return this.userService.getUserById(id);
   }
 

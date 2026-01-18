@@ -31,10 +31,11 @@ export class AuthService {
     if (!validPassword)
       throw new UnauthorizedException('Email o password incorrectos');
 
-    //* 3. Firmar el Token y retornarlo
+    //* 3. Firmar el Token y retornarlo ( Aqui agregamos roles nuevos: ['admin', 'superAdmin', 'tester'])
     const payload = {
       id: foundUser.id,
       mail: foundUser.email,
+      isAdmin: foundUser.isAdmin, //* True or false
     };
     const token = this.jwtService.sign(payload);
 

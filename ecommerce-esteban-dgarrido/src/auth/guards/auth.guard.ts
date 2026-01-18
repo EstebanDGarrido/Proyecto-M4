@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 import { environment } from 'src/config/environment';
+import { Role } from 'src/users/roles.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -27,6 +28,9 @@ export class AuthGuard implements CanActivate {
       const payload = this.jwtService.verify(token, {
         secret: environment.JWT_SECRET,
       });
+
+      payload.roles = payload.isAdmin ? [Role.Admin] : [Role.User]; //['admin', 'superAdmin', 'tester']
+
       request.user = payload;
     } catch (error: any) {
       if (error.name === 'TokenExpiredError') {

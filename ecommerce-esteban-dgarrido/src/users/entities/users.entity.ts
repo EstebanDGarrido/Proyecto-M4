@@ -58,6 +58,11 @@ export class Users {
   })
   city: string;
 
+  @Column({
+    default: false,
+  })
+  isAdmin: boolean;
+
   //* Users 1:N Orders
   @OneToMany(() => Orders, (order) => order.user)
   @JoinColumn({ name: 'order_id' })

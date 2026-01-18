@@ -1,6 +1,7 @@
 import { PartialType, PickType, OmitType } from '@nestjs/mapped-types';
 import {
   IsEmail,
+  IsEmpty,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -60,6 +61,9 @@ export class CreateUserDto {
   @MinLength(5, { message: 'País de al menos 5 caracteres' })
   @MaxLength(20, { message: 'País de máximo 20 caracteres' })
   country: string;
+
+  @IsEmpty()
+  isAdmin: boolean;
 }
 
 export class UpdateUserDto extends PartialType(
