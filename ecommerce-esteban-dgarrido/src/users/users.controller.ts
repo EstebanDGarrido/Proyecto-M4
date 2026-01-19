@@ -17,30 +17,41 @@ import { UpdateUserDto } from './dto/users.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from './roles.enum';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  // GET /users?page=2&limit=3
+  @ApiBearerAuth()
   @Get()
   @Roles(Role.Admin) //['admin', 'superAdmin', 'tester']
   @HttpCode(200)
   @UseGuards(AuthGuard, RolesGuard)
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Número de página (paginado)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Usuarios por página (paginado)',
+  })
   getAllUsers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ): Promise<Omit<Users, 'password'>[]> {
     const pageNum = Number(page);
     const limitNum = Number(limit);
-
     const validPage = pageNum > 0 && !isNaN(pageNum) ? pageNum : 1;
     const validLimit = limitNum > 0 && !isNaN(limitNum) ? limitNum : 5;
-
     return this.userService.getAllUsers(validPage, validLimit);
   }
 
-  // GET /users/:id
+  @ApiBearerAuth()
   @Get(':id')
   @HttpCode(200)
   async getUserById(
@@ -49,7 +60,7 @@ export class UsersController {
     return this.userService.getUserById(id);
   }
 
-  // PUT /users/:id
+  @ApiBearerAuth()
   @Put('id')
   @HttpCode(200)
   updateUser(
@@ -59,7 +70,7 @@ export class UsersController {
     return this.userService.updateUser(id, userNewData);
   }
 
-  // DELETE /users/:id
+  @ApiBearerAuth()
   @Delete('id')
   @HttpCode(200)
   deleteUser(@Param('id', ParseUUIDPipe) id: string) {

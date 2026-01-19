@@ -21,16 +21,16 @@ import { FileUploadModule } from './file-upload/file-upload.module';
 import { JwtModule } from '@nestjs/jwt';
 import { environment } from './config/environment';
 
-//* El @Algo es un decorador que añade funcionalidades a quien está decorando.
 @Module({
   imports: [
-    //* Cargar ARCHIVO typeorm.ts
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env.development',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [typeOrmConfig],
     }),
-    //* Conexión:
-    // ConfigService: { typeorm: ..., otro: ...}
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>

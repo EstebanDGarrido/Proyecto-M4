@@ -5,19 +5,66 @@ import {
   //MaxFileSizeValidator,
   Param,
   //ParseFilePipe,
-  Post,
+  //Post,
+  Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileUploadService } from './file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/users/roles.enum';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('files')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
-  @Post('uploadImage/:id')
-  @UseInterceptors(FileInterceptor('file')) //* form-data: {file: buffer}
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Put('uploadImage/:id')
+  @ApiOperation({ summary: 'Carga imagen a un producto' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID del producto a modificar',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description:
+      'La imagen fue cargada a Cloudinary y la Url se cargó al producto exitosamente',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validación fallida',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Producto no encontrado',
+  })
+  @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     //* 1. Id
     @Param('id') productId: string,
