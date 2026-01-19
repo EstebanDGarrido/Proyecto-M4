@@ -27,11 +27,9 @@ export class Orders {
   @Column()
   date: Date;
 
-  //* OrderDetails 1:1 Orders
   @OneToOne(() => OrderDetails, (orderDetails) => orderDetails.order)
   orderDetails: OrderDetails;
 
-  //   //* Orders N:1 Users
   @ManyToOne(() => Users, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
   user: Users;

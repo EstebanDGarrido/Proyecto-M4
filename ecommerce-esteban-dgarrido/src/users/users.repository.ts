@@ -16,8 +16,8 @@ export class UsersRepository {
   ): Promise<Omit<Users, 'password'>[]> {
     const skip = (page - 1) * limit;
     const allUsers = await this.ormUsersRepository.find({
-      skip: skip, // Salta los registros anteriores
-      take: limit, // Limita la cantidad de registros devueltos
+      skip: skip,
+      take: limit,
     });
     return allUsers.map(({ password, ...userNoPassword }) => userNoPassword);
   }
@@ -39,12 +39,13 @@ export class UsersRepository {
     return filteredUser;
   }
 
-  // IMPORTANTE: Retorna un "Usuario" o "null" => Invocado por Auth
   async getUserByEmail(email: string): Promise<Users | null> {
     return await this.ormUsersRepository.findOneBy({ email });
   }
 
-  async addUser(newUserData: CreateUserDto): Promise<string> {
+  async addUser(
+    newUserData: CreateUserDto,
+  ): Promise<{ message: string; id: string }> {
     const user = this.ormUsersRepository.create({
       name: newUserData.name,
       email: newUserData.email,
@@ -54,8 +55,13 @@ export class UsersRepository {
       city: newUserData.city,
       country: newUserData.country,
     });
+
     const savedUser = await this.ormUsersRepository.save(user);
-    return savedUser.id;
+
+    return {
+      message: 'Usuario creado exitosamente',
+      id: savedUser.id,
+    };
   }
 
   async updateUser(

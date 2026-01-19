@@ -5,18 +5,39 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
-  Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Products } from 'src/products/entities/products.entity';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ProductResponseDto, UpdateProductDto } from './dto/products.dto';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // GET /products
+  @Get()
+  @ApiOperation({ summary: 'Obtener lista de productos paginada' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Número de página (por defecto: 1)',
+    example: '1',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Productos por página (por defecto: 5)',
+    example: '5',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos obtenida exitosamente',
+    type: [ProductResponseDto],
+  })
   @Get()
   getAllProducts(@Query('page') page: string, @Query('limit') limit: string) {
     if (page && limit)
@@ -24,34 +45,24 @@ export class ProductsController {
     return this.productsService.getAllProducts(Number(1), Number(5));
   }
 
-  // /products/seeder
   @Get('seeder')
   addProducts() {
     return this.productsService.addProducts();
   }
 
-  // GET /products/:id
   @Get(':id')
   getProductById(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.getProductById(id);
   }
 
-  // // POST /Products
-  // //Body: {name, description, price, stock, imgURL}
-  // @Post()
-  // addProduct(@Body() newProductData: any) {}
-
-  //PUT /products/:id
-  //Body: {name, description, price, stock, imgURL}
   @Put(':id')
   updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() newProductData: Products,
+    @Body() newProductData: UpdateProductDto,
   ) {
     return this.productsService.updateProduct(id, newProductData);
   }
 
-  //DELETE /products/:id
   @Delete(':id')
   deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.deleteProduct(id);

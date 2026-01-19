@@ -1,5 +1,5 @@
 import { PartialType, PickType, OmitType } from '@nestjs/mapped-types';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEmpty,
@@ -12,11 +12,12 @@ import {
   Validate,
 } from 'class-validator';
 import { MatchPassword } from 'src/decorators/matchPassword.decorator';
+import { Orders } from 'src/orders/entities/orders.entity';
 
 export class CreateUserDto {
   /**
    * Debe ser un string de entre 3 y 80 caracteres.
-   * @example 'Homer'
+   * @example 'Homero'
    */
   @IsNotEmpty({ message: 'Nombre no puede estar vacío' })
   @IsString({ message: 'Nombre debe ser un string' })
@@ -26,7 +27,7 @@ export class CreateUserDto {
 
   /**
    * Debe ser un email válido.
-   * @example 'Homer@mail.com'
+   * @example 'Homero@mail.com'
    */
   @IsNotEmpty({ message: 'Email no puede estar vacío' })
   @IsEmail({}, { message: 'Debe ser un email válido' })
@@ -98,6 +99,8 @@ export class CreateUserDto {
   @ApiHideProperty()
   @IsEmpty()
   isAdmin: boolean;
+
+  //! Aquí agregamos los DTO's de las nuevas entidades
 }
 
 export class UpdateUserDto extends PartialType(
@@ -107,4 +110,40 @@ export class UpdateUserDto extends PartialType(
 export class LoginUserDto extends PickType(CreateUserDto, [
   'email',
   'password',
-]) {}
+]) {
+  @ApiProperty({
+    example: 'homero@mail.com',
+    description: 'Debe ser un email válido',
+  })
+  email: string;
+  @ApiProperty({
+    example: 'Homero123*',
+    description:
+      'Debe ser un string de entre 8 y 15 caracteres y tener: 1 minúscula, 1 mayúscula, 1 número y 1 caracter especial',
+  })
+  password: string;
+}
+
+export class UserResponseDto {
+  @ApiProperty({ example: 'c7d9c17d-bb19-4f87-b05a-9de7f14567b3' })
+  id: string;
+  @ApiProperty({ example: 'Test User01' })
+  name: string;
+  @ApiProperty({ example: 'test01@mail.com' })
+  email: string;
+  @ApiProperty({ example: 12345678 })
+  phone: number;
+  @ApiProperty({ example: 'Demo Street 1234' })
+  address: string;
+  @ApiProperty({ example: 'Demo Country' })
+  country: string;
+  @ApiProperty({ example: 'Demo City' })
+  city: string;
+  @ApiProperty({
+    type: [Orders],
+    required: false,
+    description: 'Lista de órdenes asociadas al usuario',
+  })
+  orders?: Orders[];
+}
+export class UserListResponseDto extends UserResponseDto {}

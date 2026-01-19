@@ -18,6 +18,7 @@ export class Users {
     type: 'varchar',
     length: 50,
     nullable: false,
+    name: 'NOMBRE',
   })
   name: string;
 
@@ -63,7 +64,8 @@ export class Users {
   })
   isAdmin: boolean;
 
-  //* Users 1:N Orders
+  //!Aquí agregamos nuevas entidades a la BBDD (Columnas)
+
   @OneToMany(() => Orders, (order) => order.user)
   @JoinColumn({ name: 'order_id' })
   orders: Orders[];

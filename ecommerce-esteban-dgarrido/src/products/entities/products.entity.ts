@@ -31,6 +31,11 @@ export class Products {
   description: string;
 
   @Column({
+    type: 'varchar',
+  })
+  marca: string;
+
+  @Column({
     type: 'decimal',
     precision: 10,
     scale: 2,
@@ -51,12 +56,10 @@ export class Products {
   })
   imgUrl: string;
 
-  //* Products N:1 Categories
   @ManyToOne(() => Categories, (category) => category.products)
   @JoinColumn({ name: 'category_id' })
   category: Categories;
 
-  //* Products N:N OrderDetails
   @ManyToMany(() => OrderDetails, (orderDetails) => orderDetails.products)
   orderDetails: OrderDetails[];
 }

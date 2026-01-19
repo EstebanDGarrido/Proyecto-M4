@@ -20,38 +20,33 @@ export class ProductsRepository {
       relations: {
         category: true,
       },
-      skip: skip, //* Salta los registros anteriores
-      take: limit, //* Limita la cantidad de registros devueltos
+      skip: skip,
+      take: limit,
     });
     return products;
   }
 
   async addProducts(): Promise<string> {
-    // Traemos todas las categorías:
     const categories = await this.ormCategoriesRepository.find();
-    // categories: [ { id, name}, { id, name}]
     await Promise.all(
       data.map(async (element) => {
         const category = categories.find(
           (category) => category.name === element.category,
         );
-        // Verificamos que la categoría del producto exista:
         if (!category)
           throw new Error(`La categoría ${element.category} no existe`);
-        // Creamos nuevo Producto y seteamos atributos:
         const product = new Products();
         product.name = element.name;
         product.description = element.description;
+        product.marca = element.marca;
         product.price = element.price;
         product.stock = element.stock;
         product.category = category;
-        // Grabamos el nuevo Producto en la Base de datos:
         await this.ormProductsRepository
           .createQueryBuilder()
           .insert()
           .into(Products)
           .values(product)
-          // Si el producto existe, lo actualizamos:
           .orUpdate(['description', 'price', 'imgUrl', 'stock'], ['name'])
           .execute();
       }),
@@ -69,9 +64,15 @@ export class ProductsRepository {
 
   async updateProduct(
     id: string,
-    productNewData: Products,
+    productNewData: any,
   ): Promise<Products | null> {
-    await this.ormProductsRepository.update(id, productNewData);
+    await this.ormProductsRepository
+      .createQueryBuilder()
+      .update(Products)
+      .set(productNewData)
+      .where('id = :id', { id })
+      .execute();
+
     const updatedProduct = await this.ormProductsRepository.findOneBy({
       id,
     });

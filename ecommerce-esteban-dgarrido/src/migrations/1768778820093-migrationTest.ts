@@ -39,4 +39,5 @@ export class MigrationTest1768778820093 implements MigrationInterface {
   //       'testuser@mail.com',
   //     ]);
   //   }
+  //* Hacer la migracion para un campo nuevo en productos.
 }

@@ -25,12 +25,10 @@ export class OrderDetails {
   })
   price: number;
 
-  //* Orders 1:1 OrderDetails
   @OneToOne(() => Orders, (order) => order.orderDetails)
   @JoinColumn({ name: 'order_id' })
   order: Orders;
 
-  //* OrderDetails N:N Products
   @ManyToMany(() => Products)
   @JoinTable({
     name: 'ORDERDETAILS_PRODUCTS',

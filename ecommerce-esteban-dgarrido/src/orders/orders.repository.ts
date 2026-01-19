@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderDetails } from 'src/orders/entities/orderdetails.entity';
 import { Orders } from 'src/orders/entities/orders.entity';
 import { Products } from 'src/products/entities/products.entity';
 import { Users } from '../users/entities/users.entity';
 import { Repository } from 'typeorm';
+import { CreateOrderDto } from './dto/orders.dto';
 
 @Injectable()
 export class OrdersRepository {
@@ -35,25 +40,18 @@ export class OrdersRepository {
     return order;
   }
 
-  //!any -> createOrderDto
-  async addOrder(newOrderData: any): Promise<Orders[] | string> {
-    //1. Desestructuramos la información recibida:
+  async addOrder(newOrderData: CreateOrderDto): Promise<Orders[] | string> {
     const { userId, products } = newOrderData;
-
-    //2. Verificamos que exista el Usuario:
     const user = await this.ormUsersRepository.findOneBy({ id: userId });
     if (!user) {
-      return `Usuario con id ${userId} no encontrado`;
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
     }
 
-    //3. Creamos la Orden:
     const order = new Orders();
     order.date = new Date();
     order.user = user;
     const newOrder = await this.ormOrdersRepository.save(order);
 
-    //4. Asociamos cada "id" recibido con el "Producto":
-    //* Hay stock??? si es 0 no se puede vender
     const productsArray = await Promise.all(
       products.map(async (element) => {
         const product = await this.ormProductsRepository.findOneBy({
@@ -61,10 +59,17 @@ export class OrdersRepository {
         });
 
         if (!product) {
-          return `Producto con id ${element.id} no encontrado`;
+          throw new NotFoundException(
+            `Producto con id ${element.id} no encontrado`,
+          );
         }
 
-        //5. Actualizamos el stock:
+        if (product.stock <= 0) {
+          throw new BadRequestException(
+            `Stock insuficiente para el producto ${product.name}`,
+          );
+        }
+
         await this.ormProductsRepository.update(
           { id: element.id },
           { stock: product.stock - 1 },
@@ -74,20 +79,17 @@ export class OrdersRepository {
       }),
     );
 
-    //6. Calculamos el total de forma segura:
     const total = productsArray.reduce(
       (sum, product) => sum + Number(product.price),
       0,
     );
 
-    //7. Creamos "OrderDetail" y la insertamos en BBDD:
     const orderDetail = new OrderDetails();
     orderDetail.price = Number(Number(total).toFixed(2));
     orderDetail.products = productsArray;
     orderDetail.order = newOrder;
     await this.ormOrderDetailRepository.save(orderDetail);
 
-    //8. Enviamos al cliente la compra con la info de productos:
     return await this.ormOrdersRepository.find({
       where: { id: newOrder.id },
       relations: {
