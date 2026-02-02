@@ -421,5 +421,5 @@ Este proyecto está bajo **licencia MIT**.
 ## 📸 Diagrama ER
 
 <img src="./Assets/DER.png" alt="Diagrama Entidad-Relación del e-commerce" width="600"/>
-
+Imágen no disponible de momento.
 
